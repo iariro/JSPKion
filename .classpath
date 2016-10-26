@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="KTOOL_LIB"/>
+	<classpathentry kind="var" path="JUNIT_LIB"/>
+	<classpathentry kind="var" path="SQLSERVER_JDBC_LIB"/>
+	<classpathentry kind="var" path="STRUTS_LIB"/>
+	<classpathentry kind="var" path="SERVLET_LIB"/>
+	<classpathentry kind="var" path="STRUTS2_CONVENTION_LIB"/>
+	<classpathentry kind="var" path="STRUTS2_CORE_LIB"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

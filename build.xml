@@ -1,0 +1,133 @@
+<project default="deploy">
+
+	<!-- JSP Kion build.xml -->
+
+	<!-- web.xml
+
+	<context-param>
+		<param-name>KionSqlserverUrl</param-name>
+		<param-value>jdbc:sqlserver://localhost:2144;DatabaseName=Kion;User=sa;Password=p@ssw0rd;</param-value>
+	</context-param>
+
+	-->
+
+	<property file="../../../../../build.properties" />
+
+	<condition property="have.tomcat">
+		<available file="${TOMCAT_SITE_HOME}" />
+	</condition>
+
+	<target name="zip" description="PDAによる持ち出し用">
+		<zip
+			destfile="${PDA_HOME}/Temp/JSPKion.zip"
+			basedir=".."
+			includes="project/**"
+			excludes="project/bin/**"/>
+	</target>
+
+	<target name="codeguess">
+		<taskdef name="codeguess" classname="kumagai.codeguess.CodeGuessTask" classpath="${JAVAPROJECTCHECKER_LIB}" />
+		<codeguess targetfilepath="src/">
+			<exclude extension="java" code="UTF-8" />
+		</codeguess>
+		<codeguess targetfilepath="html/">
+			<exclude extension="html" code="UTF-8" />
+			<exclude extension="jsp" code="UTF-8" />
+			<exclude extension="png" />
+		</codeguess>
+		<codeguess targetfilepath="html2/">
+			<exclude extension="html" code="UTF-8" />
+			<exclude extension="jsp" code="UTF-8" />
+			<exclude extension="png" />
+		</codeguess>
+	</target>
+
+	<target name="javadoc">
+		<javadoc
+			destdir="../javadoc"
+			sourcepath="src"
+			encoding="utf-8"
+			classpath="${XALAN_LIB};${SQLSERVER_JDBC_LIB};${KTOOL_LIB};${JUNIT_LIB};${SERVLET_LIB};${STRUTS_LIB};${STRUTS2_CORE_LIB};${STRUTS2_CONVENTION_LIB}">
+		</javadoc>
+	</target>
+
+	<target name="deploy" if="have.tomcat" description="家:TOMCAT">
+
+		<!-- Struts2 -->
+		<!--<delete dir="${TOMCAT_SITE_HOME}/kion/" />-->
+		<!--<delete dir="${TOMCAT_SITE_HOME}/WEB-INF/classes/kumagai/kion/" />-->
+		<copy todir="${TOMCAT_SITE_HOME}/kion/">
+			<fileset dir="html">
+				<include name="**/*.html" />
+				<include name="**/*.jsp" />
+				<include name="**/*.css" />
+				<include name="**/*.png" />
+			</fileset>
+		</copy>
+
+		<copy todir="${TOMCAT_SITE_HOME}/WEB-INF/classes">
+			<fileset dir="bin">
+				<include name="kumagai/kion/*.class" />
+				<include name="kumagai/kion/struts2/*.class" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="jspcheck">
+		<taskdef name="jspcheck" classname="kumagai.jspchecker.JspCheckerTask" classpath="${JSPCHECKER_LIB}" />
+		<jspcheck actionClassPath="src/kumagai/kion/struts2" jspFilePath="html"/>
+	</target>
+
+	<target name="restart" depends="deploy">
+		<exec executable="sc">
+			<arg line="stop tomcat6" />
+		</exec>
+		<sleep seconds="1" />
+		<exec executable="sc">
+			<arg line="start tomcat6" />
+		</exec>
+	</target>
+
+	<target name="kionGraph">
+		<java classname="kumagai.kion.offline.ShortKionGraph" classpath="bin;${KTOOL_LIB};${CRIMSON_LIB}">
+			<arg value="8"/> <!-- ８日 -->
+			<arg value="../ShortKion.xml"/>
+			<arg value="${KION_DATA_PATH}/achi/"/>
+			<arg value="${KION_DATA_PATH}/funabashi/"/>
+		</java>
+	</target>
+
+	<target name="averageGraph">
+		<java classname="kumagai.kion.offline.AverageKionGraph" classpath="bin;${KTOOL_LIB};${CRIMSON_LIB}">
+			<arg value="2014/1/1"/>
+			<arg value="2014/12/31"/>
+			<arg value="../Average.xml"/>
+			<arg value="${KION_DATA_PATH}/achi/"/>
+		</java>
+	</target>
+
+	<target name="monthlyAverage">
+		<java classname="kumagai.kion.offline.MonthlyAverage" classpath="bin;${KTOOL_LIB}">
+			<arg value="2010/1/1"/>
+			<arg value="2015/12/31"/>
+			<arg value="${KION_DATA_PATH}/achi/"/>
+		</java>
+	</target>
+
+	<target name="dailyKionGraph">
+		<java classname="kumagai.kion.offline.LongKionGraph" classpath="bin;${KTOOL_LIB};${CRIMSON_LIB}">
+			<arg value="12"/> <!-- 12:00:00 -->
+			<arg value="../LongKion.xml"/>
+			<arg value="${KION_DATA_PATH}/achi/"/>
+			<arg value="${KION_DATA_PATH}/funabashi/"/>
+		</java>
+	</target>
+
+	<target name="yearcompare">
+		<java classname="kumagai.kion.offline.YearCompareGraph" classpath="bin;${KTOOL_LIB};${CRIMSON_LIB}">
+			<arg value="${KION_DATA_PATH}/achi/"/>
+			<arg value="../YearCompare.xml"/>
+		</java>
+	</target>
+
+</project>
