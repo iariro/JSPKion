@@ -16,7 +16,7 @@ public class YearCompareGraph
 {
 	/**
 	 * 年ごとの平均気温近似値グラフ描画。
-	 * @param args [0]=温度ファイルディレクトリ [1]=出力ファイルパス
+	 * @param args [0]=温度ファイルディレクトリ [1]=出力ファイルパス [2]=kinjitype
 	 * @throws ParserConfigurationException
 	 * @throws TransformerException
 	 * @throws TransformerConfigurationException
@@ -24,6 +24,8 @@ public class YearCompareGraph
 	public static void main(String[] args)
 		throws IOException, TransformerException, TransformerConfigurationException, ParserConfigurationException
 	{
+		int type = Integer.valueOf(args[2]);
+
 		int location = 0;
 
 		DateTime now = new DateTime();
@@ -47,27 +49,53 @@ public class YearCompareGraph
 			{
 				// １日でもある
 
-				double kinjix [] = new double [day];
-				double kinjiy [] = new double [day];
-
-				for (int j=0 ; j<day ; j++)
+				if (type == 0)
 				{
-					if (kionTable[j][2] != null)
+					// 近似曲線
+
+					double kinjix [] = new double [day];
+					double kinjiy [] = new double [day];
+
+					for (int j=0 ; j<day ; j++)
 					{
-						// データはある。
+						if (kionTable[j][2] != null)
+						{
+							// データはある。
 
-						kinjix[j] = j;
-						kinjiy[j] = kionTable[j][2].celsius;
+							kinjix[j] = j;
+							kinjiy[j] = kionTable[j][2].celsius;
+						}
 					}
-				}
 
-				for ( ; (kinjix[day-1] == 0) && (day - 1 > 0) ; day--)
+					for ( ; (kinjix[day-1] == 0) && (day - 1 > 0) ; day--)
+					{
+					}
+
+					// 近似値を求める。
+					kinjiList.add(
+						SaishouNijouhou.getKinji(kinjix, kinjiy, 5, 5, day));
+				}
+				else
 				{
-				}
+					// 移動平均法
 
-				// 近似値を求める。
-				kinjiList.add(
-					SaishouNijouhou.getKinji(kinjix, kinjiy, 5, 5, day));
+					ArrayList<Point2D.Double> list =
+						new ArrayList<Point2D.Double>();
+
+					for (int j=0 ; j<kionTable.length ; j++)
+					{
+						if (kionTable[j][3] != null)
+						{
+							// データあり。
+
+							list.add(
+								new Point2D.Double(j, kionTable[j][3].celsius));
+						}
+					}
+					System.out.println(list.size());
+
+					kinjiList.add(list);
+				}
 			}
 		}
 
@@ -101,7 +129,7 @@ public class YearCompareGraph
 			KDocument document =
 				new YearCompareGraphDocument(
 					kinjiList,
-					(float)900 / (float)365,
+					(float)1200 / (float)365,
 					(float)550 / (float)height,
 					now.getYear(),
 					new DateTime(now.getYear(), 1, 1, 0, 0, 0),
@@ -116,6 +144,10 @@ public class YearCompareGraph
 				transformer,
 				new OutputStreamWriter(
 					new FileOutputStream(args[1]), "utf-8"));
+		}
+		else
+		{
+			System.out.println(String.format("max=%s min=%s", max, min));
 		}
 	}
 }

@@ -127,6 +127,7 @@
 		<java classname="kumagai.kion.offline.YearCompareGraph" classpath="bin;${KTOOL_LIB};${CRIMSON_LIB}">
 			<arg value="${KION_DATA_PATH}/achi/"/>
 			<arg value="../YearCompare.xml"/>
+			<arg value="1"/>
 		</java>
 	</target>
 
