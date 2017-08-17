@@ -56,6 +56,7 @@ public class KionCollectionFromFile
 
 				String line;
 
+				reader.readLine(); // ヘッダ行読み飛ばし
 				while ((line = reader.readLine()) != null)
 				{
 					String [] fields = line.split(",");
@@ -79,7 +80,14 @@ public class KionCollectionFromFile
 						catch (StringIndexOutOfBoundsException exception)
 						{
 							// 無効な行。
+							break;
 						}
+					}
+					else
+					{
+						// フィールド数不正
+
+						break;
 					}
 				}
 			}
